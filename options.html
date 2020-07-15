@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Charge Control Options</title>
+</head>
+
+<body style="font-size: medium">
+    <h3>Options:</h3>
+    <table>
+        <tr>
+            <td> Max Charge %</td>
+            <td>
+                <input type="number" name="" id="max-charge-percent">
+            </td>
+        </tr>
+        <tr>
+            <td> Minimum Charge %</td>
+            <td>
+                <input type="number" name="" id="min-charge-percent">
+            </td>
+        </tr>
+        <tr>
+            <td> <a href="https://ifttt.com/maker_webhooks/settings" target="_blank">Webhook API Key</a> </td>
+            <td>
+                <input type="password" name="" id="api-key" placeholder="key...">
+
+            </td>
+        </tr>
+        <tr>
+            <td>Show API Key</td>
+            <td><input type="checkbox" name="" id="show-api-key"></td>
+        </tr>
+        <tr>
+            <td> "Turn On" Event Name</a> </td>
+            <td>
+                <input type="text" name="" id="on-event-name" placeholder="event_name...">
+            </td>
+        </tr>
+        <tr>
+            <td> "Turn Off" Event Name</a> </td>
+            <td>
+                <input type="text" name="" id="off-event-name" placeholder="event_name...">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button id="save">Save</button>
+                <button id="close">Close</button>
+            </td>
+            <td>
+                <button id="test-on">Test "Turn On"</button>
+                <button id="test-off">Test "Turn Off"</button>
+            </td>
+        </tr>
+    </table>
+    <div id="status"></div>
+
+    <h2>Setup Instructions</h2>
+    <h3><em>Note: As of the most recent update Gosund outlets have had their IFTT integration disabled, but any othe IFTT enabled outlet should still
+            work</em></h3>
+    <h3><a href="https://github.com/allen-n/charge-control-chrome-extension/wiki" target="_blank">Most up to date setup
+            instructions. </a> </h3>
+
+
+
+    <ol>
+        <li>Getting the smart outlets: I&#39;m using <a
+                href="https://smile.amazon.com/gp/product/B079MFTYMV/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&amp;psc=1">Smart
+                Plug, Gosund Mini WiFi Outlet</a>. But any smart plug that can interact with <a
+                href="https://ifttt.com/">IFTT</a> should work. The rest of this walkthrough will assume you&#39;re
+            using these outlets, but the steps should be easily transferrable if you aren&#39;t.</li>
+        <li><a href="https://ifttt.com/">Log in</a> or <a href="https://ifttt.com/join">create</a> an IFTT account.</li>
+        <li><a href="https://ifttt.com/create">Create your applet</a>. You should see &quot;If <em>This</em> then
+            <em>that</em> on the screen.</li>
+        <li>Click <em>This</em> and search for &quot;webhooks&quot;. Click it, then click &quot;receive web
+            request&quot;. Then you&#39;ll want to give it a name, something like &quot;outlet_off&quot; will do. Just
+            don&#39;t put blank spaces like &quot; &quot; in the name! <img width="50%"
+                src="https://i.imgur.com/4WTPJX9.jpg" alt="Outlet Off Webhook Image"></li>
+        <li>Now select <em>that</em>. <img width="50%" src="https://i.imgur.com/sYcRqpY.jpg" alt="Select That Image">
+        </li>
+        <li>Search for your smart outlet developer. For GoSund, search for &quot;smart life&quot;.<img width="50%"
+                src="https://i.imgur.com/O02XM9A.jpg" alt="Smart Life Logo"></li>
+        <li>Log in with your GoSund account, and select the off event (you&#39;ll do &quot;on&quot; for the second
+            event). <img width="50%" src="https://i.imgur.com/y0qSfew.jpg" alt="On/Off Events Image"></li>
+        <li>Select the outlet you want to control from the menu, create the event, uncheck &quot;Receive notifications
+            when this applet runs, and click finish. <img width="50%" src="https://i.imgur.com/00r6r03.jpg"
+                alt="Select Outlet Image"></li>
+        <li>Repeat steps 3-6, but this time naming the event something along the lines of &quot;outlet_on&quot; in step
+            4, and selecting the off event in step 5. You now have your two event names!</li>
+        <li>Get your API key by clicking &quot;documentation on <a href="https://ifttt.com/maker_webhooks">this
+                page</a>. <img width="50%" src="https://i.imgur.com/Jq08e2q.jpg" alt="Documentation Page"></li>
+        <li>The string at the top of your page after &quot;Your key is:&quot; is your key, record it!</li>
+        <li>Open the extension menu, click &quot;options&quot;, and add the information as follows: webhook API key is
+            the key from step 8,
+            &quot;Turn On&quot; Event Name is the event name with &quot;on&quot; in it from the second time you did step
+            4, and &quot;Turn Off&quot; Event Name is the event name with &quot;off&quot; in it from the first time you
+            did step 4. <img width="50%" src="https://i.imgur.com/JZ0n8Na.jpg" alt="Options Menu Image"></li>
+        <li>Press save, and you&#39;re ready to roll! Test the outlet control by clicking &quot;Test Turn On/Off&quot;,
+            which should turn your outlet on and off. If everything is working, you&#39;re set to go.</li>
+        <li>Don&#39;t forget to turn the extension off via the popup menu if you want to charge to 100% before a day out
+            on the town :) <img width="50%" src="https://i.imgur.com/gF0ooAd.jpg" alt="On/Off Button Popup Image"></li>
+    </ol>
+
+
+    <script src="scripts/options.js"></script>
+</body>
+
+</html>
