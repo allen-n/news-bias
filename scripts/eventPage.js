@@ -25,8 +25,6 @@ function getBiasRatings(callback) {
 // Run the background script any time a new page is loaded and becomes the focus
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (changeInfo.status == 'complete' && tab.active) {
-    // let ratings = getBiasRatings();
-
     chrome.tabs.executeScript(tab.id, {
       file: "scripts/getUrlsScript.js"
     }, function () {
@@ -34,7 +32,11 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       if (lastErr) {
         console.log('tab: ' + tab.id + ' lastError: ' + JSON.stringify(lastErr));
       }
-      console.log('Recieved HTML from ', tab.url);
+      getBiasRatings(function (ratings) {
+        let domain = url2Domain(tab.url)
+        console.log('Recieved HTML from: ', tab.url, ".\nBias rating is: ", ratings.allData[domain].rating);
+      });
+
     });
   }
 })

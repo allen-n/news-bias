@@ -1,10 +1,9 @@
+
 var allUrls = document.body.querySelectorAll('a[href^=http]')
 var domainList = [];
 for (i = 0; i < allUrls.length; i++) {
     var url = allUrls[i].href
-    var domain = url.replace(/^https?:\/\//, ''); // Strip off https:// and/or http://
-    domain = domain.replace(/^[a-zA-Z]*\./, ''); // Strip off anything before the first .
-    domain = domain.split('/')[0]; // Get the domain and just the domain (not the path)
+    var domain = url2Domain(url);
     domainList.push(domain);
 }
 
