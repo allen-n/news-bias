@@ -1,6 +1,6 @@
 
 var allUrls = document.body.querySelectorAll('a[href^=http]') // Most websites
-var googUrls = document.body.querySelectorAll('a[href^="./articles"]')
+var googUrls = document.body.querySelectorAll('a[href^="./articles"]') // On news.google.com
 
 var urlList = [];
 for (i = 0; i < allUrls.length; i++) {

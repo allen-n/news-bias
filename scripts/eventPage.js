@@ -6,7 +6,74 @@ var gBiasRatings = {
   expandedSet: null // array expansion of the set of domains
 };
 
-var gDeepURLs = false; // This is a 10x performance hit when set to true...
+const gDeepURLs = false; // This is a 10x performance hit when set to true...set true only on FB?
+const gDebug = true;
+// Enum mapping bias rating strings to folder names
+const gNoRating = "Not Rated";
+const gBiasEnum = {
+  "Left": {
+    "str": "l",
+    "color": [24, 85, 249, 100],
+    "score": -1
+  },
+  "Lean Left": {
+    "str": "ll",
+    "color": [77, 76, 201, 100],
+    "score": -0.5
+  },
+  "Center": {
+    "str": "c",
+    "color": [130, 67, 152, 100],
+    "score": 0
+  },
+  "Lean Right": {
+    "str": "lr",
+    "color": [190, 56, 98, 100],
+    "score": 0.5
+  },
+  "Right": {
+    "str": "r",
+    "color": [252, 57, 57, 100],
+    "score": 1
+  },
+  "Not Rated": {
+    "str": "n",
+    "color": [116, 116, 116, 100],
+    "score": null
+  }
+};
+
+/**
+ * 
+ * @param {String} siteBiasString, bias rating of curent site, one of: 
+ * @param {Number} feedBiasRating, current feed bias from -1 to 1, where -1 = L, 1 = R, 0 = C 
+ */
+function updateIcon(siteBiasString, feedBiasRating) {
+  var siteBiasShortString = gBiasEnum[siteBiasString].str // For letter/color in icon
+  const badgeText = siteBiasString == gNoRating ? '' : siteBiasShortString.toUpperCase()
+  const feedBiasValue = Math.round(((feedBiasRating + 1) * 8) + 1)
+
+  siteBiasShortString = 'w' // For no letter/color in icon
+  chrome.browserAction.setIcon({
+    path: `./images/ext-images/${siteBiasShortString}-icons/${feedBiasValue}-icon.png`
+  }, printErrorCallback);
+
+  chrome.browserAction.setBadgeText({
+    text: badgeText
+  });
+
+  chrome.browserAction.setBadgeBackgroundColor({
+    color: gBiasEnum[siteBiasString].color
+  });
+}
+
+function printErrorCallback() {
+  if (chrome.runtime.lastError) {
+    console.warn("There was a (handled) error: ", chrome.runtime.lastError.message);
+  } else {
+    // Tab exists
+  }
+}
 
 // Argument of the callback is the bias ratings object
 function getBiasRatings(callback) {
@@ -23,9 +90,57 @@ function getBiasRatings(callback) {
   }
 }
 
+// Function to crawl links through redirects to find news stories
+function getRedirectUrl(url, callback = null) {
+  $.ajax({
+    type: "HEAD",
+    async: true,
+    cache: false,
+    url: url,
+  }).done(function (message, text, jqXHR) {
+    let headers = jqXHR.getAllResponseHeaders();
+    let regexp = /https?:\/\/[a-zA-Z]*.[a-zA-Z]*.com/gm;
+    let urls = Array.from(headers.matchAll(regexp), m => m[0]);
+    callback(urls);
+  });
+}
+
+/**
+ * 
+ * @param {chrome.tabs.tab} tab, the tab to use to update the icon (i.e. url to use)
+ * @param {Number} feedBiasRating, current feed bias from -1 to 1, where -1 = L, 1 = R, 0 = C 
+ */
+function tabUpdateIcon(tab, feedBiasRating = 0) {
+  if (tab.url) {
+    getBiasRatings(function (ratings) {
+      let domain = url2Domain(tab.url)
+      if (gDebug) console.log('Received HTML from:', tab.url)
+      siteBiasString = gNoRating
+      if (ratings.allData[domain] != null && domain != "") {
+        siteBiasString = ratings.allData[domain].rating
+        if (gDebug) console.log("Bias rating is: ", siteBiasString);
+        updateIcon(siteBiasString, feedBiasRating)
+      } else {
+        updateIcon(siteBiasString, feedBiasRating)
+      }
+    });
+  }
+}
+
+
+// Run each time the active tab is changed to change the icon
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, function (tab) {
+    tabUpdateIcon(tab);
+  });
+});
+
+
 // src: https://stackoverflow.com/questions/6497548/chrome-extension-make-it-run-every-page-load
-// Run the background script any time a new page is loaded and becomes the focus
+// Run the background script any time a new page is loaded and becomes the focus to run
+// the feed and story bias calculations, and change the icon
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  tabUpdateIcon(tab)
   if (changeInfo.status == 'complete' && tab.active) {
     chrome.tabs.executeScript(tab.id, {
       file: "scripts/getUrlsScript.js"
@@ -34,13 +149,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       if (lastErr) {
         console.log('tab: ' + tab.id + ' lastError: ' + JSON.stringify(lastErr));
       }
-      getBiasRatings(function (ratings) {
-        let domain = url2Domain(tab.url)
-        console.log('Recieved HTML from:', tab.url)
-        if (ratings.allData[domain] != null) {
-          console.log("Bias rating is: ", ratings.allData[domain].rating);
-        }
-      });
+
+      // TODO: A site has been visited for the first time, do stuff!
 
     });
   }
@@ -67,20 +177,26 @@ chrome.runtime.onMessage.addListener(
     getBiasRatings(function (ratings) {
       let domainSet = new Set(domainList);
       let intersection = new Set(ratings.expandedSet.filter(x => domainSet.has(x)));
-      console.log(intersection)
+      if (gDebug) console.log(intersection)
+      let numerator = 0;
+      let denominator = 0;
+      intersection.forEach(function (domain) {
+        const ratingString = ratings.allData[domain].rating
+        const score = gBiasEnum[ratingString].score
+        if (score != null && domain != "") {
+          numerator += score
+          denominator += 1
+        }
+      })
+      // Use page rating to update overall bias index, it loads to slow for any 1 page
+      const pageRating = denominator == 0 ? 0 : (numerator / denominator)
+      if (gDebug) console.log("Page rating: ", pageRating)
+      // chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+      //   let tab = tabs[0]
+      //   tabUpdateIcon(tab, pageRating)
+      // });
     });
   });
-
-
-
-
-    // $.getJSON(chrome.extension.getURL('biasRatings.json'), function (biasRatings) {
-
-    //   let ratingSet = new Set(Object.keys(biasRatings)); // keys are the domains
-    //   let domainSet = new Set(domainList);
-    //   let intersection = new Set([...ratingSet].filter(x => domainSet.has(x)));
-    //   console.log(intersection)
-    // })
 
 
 /////////////////////////////////////////////////////////////////////
@@ -93,31 +209,6 @@ chrome.runtime.onMessage.addListener(
 
 
 // FIXME: OLD REFERENCE CODE 
-// function updateBatteryLevel(level, isCharging) {
-//   const batteryLevelText = level !== 1 ? (level * 100).toFixed() : '';
-//   const chargingStatus = isCharging ? 'charging' : 'not-charging';
-
-//   chrome.browserAction.setIcon({
-//     path: `./images/icon-${chargingStatus}.png`
-//   }, error_callback);
-
-//   chrome.browserAction.setBadgeText({
-//     text: batteryLevelText
-//   });
-
-//   chrome.browserAction.setBadgeBackgroundColor({
-//     color: [94, 97, 106, 255]
-//   });
-// }
-
-// function error_callback() {
-//   if (chrome.runtime.lastError) {
-//     console.log(chrome.runtime.lastError.message);
-//   } else {
-//     // Tab exists
-//   }
-// }
-
 
 // /**
 //  * Makes a http request to the iftt webhook specified in options.js
