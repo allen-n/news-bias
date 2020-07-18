@@ -6,6 +6,8 @@ var gBiasRatings = {
   expandedSet: null // array expansion of the set of domains
 };
 
+var gDeepURLs = false; // This is a 10x performance hit when set to true...
+
 // Argument of the callback is the bias ratings object
 function getBiasRatings(callback) {
   if (gBiasRatings.allData == null) {
@@ -34,7 +36,10 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
       }
       getBiasRatings(function (ratings) {
         let domain = url2Domain(tab.url)
-        console.log('Recieved HTML from: ', tab.url, ".\nBias rating is: ", ratings.allData[domain].rating);
+        console.log('Recieved HTML from:', tab.url)
+        if (ratings.allData[domain] != null) {
+          console.log("Bias rating is: ", ratings.allData[domain].rating);
+        }
       });
 
     });
@@ -43,14 +48,30 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
-    const domainList = request.content
+    const urlList = request.content
+    var domainList = []
+    if (gDeepURLs) {
+      urlList.forEach(function (url) {
+        getRedirectUrl(url, function (allURLs) {
+          for (deepURL in allURLs) {
+            domainList.push(url2Domain(deepURL));
+          }
+        })
+      })
+    } else {
+      urlList.forEach(function (url) {
+        domainList.push(url2Domain(url))
+      });
+    }
     // Fetch the list of all news site ratings
-    // TODO: The code in this section is *extremely* non-performant, how can this be faster?
     getBiasRatings(function (ratings) {
       let domainSet = new Set(domainList);
       let intersection = new Set(ratings.expandedSet.filter(x => domainSet.has(x)));
       console.log(intersection)
     });
+  });
+
+
 
 
     // $.getJSON(chrome.extension.getURL('biasRatings.json'), function (biasRatings) {
@@ -61,7 +82,6 @@ chrome.runtime.onMessage.addListener(
     //   console.log(intersection)
     // })
 
-  });
 
 /////////////////////////////////////////////////////////////////////
 

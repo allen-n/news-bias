@@ -27,6 +27,7 @@
         "<all_urls>"
       ],
       "js": [
+        "scripts/jquery-3.5.1.min.js",
         "scripts/utils.js"
       ]
     }

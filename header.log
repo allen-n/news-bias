@@ -1,0 +1,42 @@
+getUrlsScript.js:15 Couldn't send message. 
+        Likely because the background script isn't running yet (hang tight!). 
+        Error message: {"message":"Could not establish connection. Receiving end does not exist."}
+getUrlsScript.js:19 myBias URLs logged
+eventPage.js:58 Set(0) {}
+eventPage.js:37 Recieved HTML from: file:///C:/Users/allen/Documents/Git-Repos/news-bias/test.html
+utils.js:23 undefined "nocontent" 
+
+"alt-svc: h3-29=":443"; ma=3600,h3-27=":443"; ma=3600
+cache-control: private, no-cache, no-store, must-revalidate
+content-encoding: br
+content-security-policy: default-src * data: blob: 'self';script-src *.facebook.com *.fbcdn.net *.facebook.net *.google-analytics.com *.virtualearth.net *.google.com 127.0.0.1:* *.spotilocal.com:* 'unsafe-inline' 'unsafe-eval' blob: data: 'self';style-src data: blob: 'unsafe-inline' *;connect-src *.facebook.com facebook.com *.fbcdn.net *.facebook.net *.spotilocal.com:* wss://*.facebook.com:* https://fb.scanandcleanlocal.com:* attachment.fbsbx.com ws://localhost:* blob: *.cdninstagram.com 'self' chrome-extension://boadgeojelhgndaghljhdicfkmllpafd chrome-extension://dliochdbjfkdbacpmhlcpmleaejidimm;block-all-mixed-content;upgrade-insecure-requests;
+content-type: text/html; charset="utf-8"
+date: Sat, 18 Jul 2020 08:27:51 GMT
+expires: Sat, 01 Jan 2000 00:00:00 GMT
+pragma: no-cache
+referrer-policy: origin
+refresh: 1;URL=https://www.latimes.com/world-nation/story/2020-07-17/fauci-expects-results-from-clinical-trial-for-covid-treatment-by-fall?fbclid=IwAR1EjsLwUJkQ70SVKzqVT0Igg0sxiXbQA5azzM9IbUOXZOLfwTbYh-wWNl4
+status: 200
+vary: Accept-Encoding
+x-content-type-options: nosniff
+x-fb-debug: SG730xMFxhvzTPiBQnSzt7WoZVOA0jM+b4USHbUHy+JhG79LK3CJ8nc/+tm4cC699wjGXJ2ZNV2/NeSwg0d+zA==
+x-frame-options: DENY
+x-robots-tag: noindex, nofollow
+x-xss-protection: 0
+"
+utils.js:23 undefined "nocontent" "alt-svc: h3-29=":443"; ma=2592000,h3-27=":443"; ma=2592000,h3-25=":443"; ma=2592000,h3-T050=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443"; ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-length: 622924
+content-security-policy: script-src 'report-sample' 'nonce-dJs8hBY8QguObgDfkmKLzg' 'unsafe-inline';object-src 'none';base-uri 'self';report-uri /_/DotsSplashUi/cspreport;worker-src 'self', script-src 'nonce-dJs8hBY8QguObgDfkmKLzg' 'self' 'unsafe-eval' https://apis.google.com https://ssl.gstatic.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://youtube.com https://www.youtube.com https://youtube.googleapis.com https://*.ytimg.com https://maps.googleapis.com https://www.google-analytics.com/analytics.js https://www.googleapis.com/appsmarket/v2/installedApps/;report-uri /_/DotsSplashUi/cspreport
+content-type: text/html; charset=utf-8
+date: Sat, 18 Jul 2020 08:27:51 GMT
+expires: Mon, 01 Jan 1990 00:00:00 GMT
+pragma: no-cache
+server: ESF
+status: 200
+strict-transport-security: max-age=31536000
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-ua-compatible: IE=edge
+x-xss-protection: 0
+"
