@@ -1,4 +1,20 @@
 
+document.getElementById('clear').addEventListener('click', function (e) {
+    chrome.storage.sync.clear(function () {
+        console.log("All data deleted")
+        document.getElementById('data-length').innerHTML = "All data deleted."
+    })
+})
+
+document.getElementById('print').addEventListener('click', function (e) {
+    chrome.storage.sync.get(null, (data) => {
+        let length = JSON.stringify(data).length
+        document.getElementById('data-length').innerHTML = length + " b"
+    })
+})
+
+
+
 // FIXME: popup code ref
 // document.addEventListener('DOMContentLoaded', function () {
 //   const statusElement = document.getElementById('status');
