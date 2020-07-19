@@ -1,2 +1,2 @@
 # news-bias
-A chrome extension to track the political bias your news diet to help depolarize the political climate
+A chrome extension to track the political bias of your news diet to understand others better and help depolarize the political climate
