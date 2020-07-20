@@ -1,6 +1,8 @@
 
 var allUrls = document.body.querySelectorAll('a[href^=http]') // Most websites
 var googUrls = document.body.querySelectorAll('a[href^="./articles"]') // On news.google.com
+var domain = window.location.href;
+domain = url2Domain(domain)
 
 var urlList = [];
 for (i = 0; i < allUrls.length; i++) {
@@ -14,7 +16,8 @@ for (i = 0; i < googUrls.length; i++) {
 }
 
 chrome.runtime.sendMessage({
-    content: urlList
+    content: urlList,
+    currentDomain: domain
 }, function (response) {
     const lastErr = chrome.runtime.lastError;
     if (lastErr) {

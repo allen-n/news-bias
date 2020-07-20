@@ -3,7 +3,6 @@ var gBiasRatings = {
   allData: null,
   domains: null, // array of domains (keys of allData)
   set: null, // set of domains
-  expandedSet: null // array expansion of the set of domains
 };
 // Flags: 
 // TODO: Deep URL crawl causes 10x performance hit, set true only on FB
@@ -58,7 +57,6 @@ class BiasRatings {
       allData: null,
       domains: null,
       set: null,
-      expandedSet: null
     };
     this._$ = $
     this._jsonName = jsonName
@@ -75,16 +73,14 @@ class BiasRatings {
       obj._biasRatingsObj.allData = biasRatings;
       obj._biasRatingsObj.domains = Object.keys(biasRatings)
       obj._biasRatingsObj.set = new Set(obj._biasRatingsObj.domains);
-      obj._biasRatingsObj.expandedSet = [...obj._biasRatingsObj.set]
       if (callback != null) callback(obj._biasRatingsObj);
     })
   }
   /**
    * Initializes the following global variables:
-   * * gBiasRatings.allData: full rating json object
-   * * gBiasRatings.domains: array of domains (keys of allData)
-   * * gBiasRatings.set: set of domains
-   * * gBiasRatings.expandedSet: array expansion of the set of domains
+   * * this.allData: full rating json object
+   * * this.domains: array of domains (keys of allData)
+   * * this.set: set of domains
    * @param {function} callback, a callback function to be called with the bias 
    * ratings json object as the argument, i.e. callback(gBiasRatings.allData)
    */
@@ -169,14 +165,13 @@ class DataStore {
 
   /**
    * 
-   * @param {Set<String>} domains, a set of domains corresponding to all news sites linked from the loaded page 
+   * @param {Map<String, Number>} domains, a map of domains corresponding to all news sites linked from the loaded page,
+   * and the number of times each domain appeared on that page
+   * @param {string} currentDomain the domain that links were pulled from, which can be ignored in the page score calculation
    * @param {bool} storeLinksSeen, if true, the number of times each individual link is seen is stored in chrome 
    * storage, this is slower
    */
-  storeLinkVisit(domains, storeLinksSeen = true) {
-    // TODO: We should ignore links from the domain we are currently on from the count
-    // TODO: Fix this function, it hashes domains together so it only counts unique domains on the page
-    // TODO: Do not update link score for non-news websites (it currently treats them as neutral)
+  storeLinkVisit(domains, currentDomain, storeLinksSeen = true) {
     var numerator = 0;
     var denominator = 0;
     var Ratings = this._Ratings
@@ -186,12 +181,13 @@ class DataStore {
       totalLinksSeen: 0 // total number of links seen be the client
     }, function (items) {
       Ratings.getRatings(function (ratings) {
-        domains.forEach(function (domain) {
+        domains.forEach(function (num, domain) {
+          if (domain == currentDomain) return; // skip if this is the current domain
           const ratingString = ratings.allData[domain].rating
           const score = self._biasEnum[ratingString].score
           if (score != null && domain != "") {
-            numerator += score
-            denominator += 1
+            numerator += score * num;
+            denominator += num;
           }
           if (storeLinksSeen) {
             self._storageAPI.get(domain, function (fetchedDomain) {
@@ -213,8 +209,8 @@ class DataStore {
       const pageRating = denominator == 0 ? 0 : (numerator / denominator)
       if (gDebug) console.log("Page rating: ", pageRating)
       const totalScore = items.averageLinkScore * items.totalLinksSeen
-      const linksSeen = items.totalLinksSeen + 1
-      const score = (totalScore + pageRating) / linksSeen
+      const linksSeen = items.totalLinksSeen + denominator
+      const score = linksSeen > 0 ? (totalScore + pageRating) / linksSeen : 0;
       self._storageAPI.set({
         averageLinkScore: score,
         totalLinksSeen: linksSeen
@@ -284,7 +280,7 @@ class IconUpdater {
    * @param {bool} storeVisit, if true, stores the visit in associated chrome storage 
    * to calculate 'read articles' score, else doesn't
    */
-  tabUpdateIcon(tab, storeVisit = false) { // TODO: Upate tab to url
+  tabUpdateIcon(tab, storeVisit = false) {
     var self = this
     this._Ratings.getRatings(function (ratings) {
       ChromeStorage.get({
@@ -367,6 +363,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     const urlList = request.content
+    const currentDomain = request.currentDomain
     var domainList = []
     if (gDeepURLs) {
       urlList.forEach(function (url) {
@@ -383,9 +380,21 @@ chrome.runtime.onMessage.addListener(
     }
     // Fetch the list of all news site ratings
     Ratings.getRatings(function (ratings) {
-      let domainSet = new Set(domainList);
-      let intersection = new Set(ratings.expandedSet.filter(x => domainSet.has(x)));
+      let domainMap = new Map()
+      domainList.forEach(function (domain) {
+        if (domainMap.has(domain)) {
+          domainMap.set(domain, domainMap.get(domain) + 1)
+        } else {
+          domainMap.set(domain, 1)
+        }
+      })
+      let intersection = new Map()
+      ratings.set.forEach(function (domain) {
+        if (domainMap.has(domain)) {
+          intersection.set(domain, domainMap.get(domain))
+        }
+      })
       if (gDebug) console.log(intersection)
-      ChromeStorage.storeLinkVisit(intersection)
+      ChromeStorage.storeLinkVisit(intersection, currentDomain)
     });
   });
