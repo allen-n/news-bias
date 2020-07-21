@@ -14,32 +14,38 @@ const gBiasEnum = { // Enum mapping bias rating strings to folder names
   "Left": {
     "str": "l",
     "color": [24, 85, 249, 100],
-    "score": -1
+    "score": -1,
+    "rgba": [24, 85, 249, 1]
   },
   "Lean Left": {
     "str": "ll",
     "color": [77, 76, 201, 100],
-    "score": -0.5
+    "score": -0.5,
+    "rgba": [77, 76, 201, 1]
   },
   "Center": {
     "str": "c",
     "color": [130, 67, 152, 100],
-    "score": 0
+    "score": 0,
+    "rgba": [130, 67, 152, 1]
   },
   "Lean Right": {
     "str": "lr",
     "color": [190, 56, 98, 100],
-    "score": 0.5
+    "score": 0.5,
+    "rgba": [190, 56, 98, 1]
   },
   "Right": {
     "str": "r",
     "color": [252, 57, 57, 100],
-    "score": 1
+    "score": 1,
+    "rgba": [252, 57, 57, 1]
   },
   "Not Rated": {
     "str": "n",
     "color": [116, 116, 116, 100],
-    "score": null
+    "score": null,
+    "rgba": [116, 116, 116, 1]
   }
 };
 

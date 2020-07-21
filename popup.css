@@ -1,0 +1,136 @@
+/* Flexbox reference: https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+
+/* definition */
+@font-face {
+    font-family: SecularOne;
+    src: url('fonts/SecularOne-Regular.ttf');
+    /* src: url('fonts/EntezareZohoor2.eot?') format('☺'), url('fonts/EntezareZohoor2.woff') format('woff'), url('fonts/EntezareZohoor2.ttf') format('truetype'); */
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --left-color: #1855F9;
+    --leans-left-color: #4D4CC9;
+    --center-color: #824398;
+    --leans-right-color: #BE3862;
+    --right-color: #FC3939;
+    --none-color: #747474;
+}
+
+body {
+    /* position: absolute; */
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+
+.fonts {
+    font-family: SecularOne;
+    font-style: normal;
+    font-weight: normal;
+    width: 400px;
+    height: auto;
+    margin: 20px;
+    /* height: 462px; */
+}
+
+h1 {
+    font-size: 24px;
+    line-height: 35px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: right;
+    background: -webkit-linear-gradient(#1455FD, #F52F2F);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+h3 {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
+}
+
+.btn-row {
+    justify-content: space-evenly;
+}
+
+.sliderBar {
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(90deg, #1455FD, #F52F2F);
+    align-items: center;
+}
+
+.sliderIndicator {
+    width: 2%;
+    margin-left: calc(50% - 2%/2);
+    height: 15px;
+    background-color: grey;
+}
+
+#siteBiasRating {
+    color: var(--left-color);
+}
+
+#readBiasRating {
+    color: var(--center-color)
+}
+
+#feedBiasRating {
+    color: var(--right-color)
+}
+
+.btn {
+    width: fit-content;
+    background: rgba(134, 66, 149, 0.86);
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 15px;
+    padding: 10px;
+    display: flex;
+    cursor: pointer;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #FFFFFF;
+    text-decoration: none;
+    /* margin: 20px; */
+    outline: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none !important;
+}
+
+.btn:hover {
+    background-color: #864295;
+}
+
+.btn:active {
+    position: relative;
+    top: 2px;
+}
+
+.little-p {
+    font-size: 10px;
+}
+
+.big-p {
+    font-size: 12px;
+}
