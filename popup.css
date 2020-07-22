@@ -1,6 +1,7 @@
 /* Flexbox reference: https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
 
 /* definition */
+
 @font-face {
     font-family: SecularOne;
     src: url('fonts/SecularOne-Regular.ttf');
@@ -58,6 +59,10 @@ h2 {
 h3 {
     margin-top: 6px;
     margin-bottom: 6px;
+}
+
+.l-margin {
+    margin-left: 6px;
 }
 
 .row {
@@ -133,4 +138,8 @@ h3 {
 
 .big-p {
     font-size: 12px;
+}
+
+#hidden-row {
+    display: none;
 }

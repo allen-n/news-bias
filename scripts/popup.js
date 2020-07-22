@@ -1,22 +1,51 @@
 
+// storageAPI extern in utils.js
+
 document.getElementById('clear').addEventListener('click', function (e) {
-    clearStorage(function () {
-        console.log("All data deleted")
-        document.getElementById('data-length').innerHTML = "All data deleted."
-    })
-    // chrome.storage.sync.clear(function () {
-    //     console.log("All data deleted")
-    //     document.getElementById('data-length').innerHTML = "All data deleted."
-    // })
+    // An alternative modal using jQuery: https://jqueryui.com/dialog/#modal-confirmation
+    const confirmString = `Are you sure you want to delete all data? \n(This isn't reversable, so you may want to download it first!)`
+    if(confirm(confirmString)) {
+        clearStorage(function () {
+            console.log("All data deleted")
+            document.getElementById('data-length').innerHTML = "All data deleted."
+        })
+    } else {
+        // Do nothing
+    }
+    
 })
 
 document.getElementById('print').addEventListener('click', function (e) {
-    chrome.storage.sync.get(null, (data) => {
+    storageAPI.get(null, (data) => {
         // let length = JSON.stringify(data).length
         let length = jsonLength(data)
         document.getElementById('data-length').innerHTML = length + " b"
     })
 })
+
+document.getElementById('moreInfo').addEventListener('click', function (e) {
+    document.getElementById('hidden-row').style.display = 'flex';
+})
+
+window.onload = function () {
+    // storageAPI.get(null, function (data) { console.log(data) })
+    storageAPI.get({
+        totalVisitNumber: 0, // total number times a news site was visited
+        averageVisitScore: 0, // average bias score for site visits, between -1 and 1,
+        averageLinkScore: 0, // average bias score for links shown to client, between -1 and 1
+        totalLinksSeen: 0, // total number of links seen be the client
+        siteBiasString: "Loading..."
+    }, function (items) {
+        console.log(items)
+        document.getElementById('siteBiasRating').innerHTML = items.siteBiasString;
+        document.getElementById('siteBiasRating').style.color = gBiasEnum[items.siteBiasString].rgba
+        document.getElementById('readBiasRating').innerHTML = items.averageVisitScore;
+        document.getElementById('feedBiasRating').innerHTML = items.averageLinkScore;
+
+        document.getElementById('sliderIndicatorRead').style.marginLeft = '' + Math.round(50 * (items.averageVisitScore + 1)) + '%';
+        document.getElementById('sliderIndicatorFeed').style.marginLeft = '' + Math.round(50 * (items.averageLinkScore + 1)) + '%';
+    })
+}
 
 
 
