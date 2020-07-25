@@ -9,6 +9,7 @@ const gDeepURLs = false;
 const gDebug = true;
 // Shared Enums:
 const gNoRating = "Not Rated";
+const gMixed = "Mixed";
 const storageAPI = chrome.storage.sync
 // Enum mapping bias rating strings to folder names
 //TODO: There is a 'mixed' category, counting it as 'center', handle later
@@ -87,4 +88,14 @@ function clearStorage(callback) {
     chrome.storage.sync.clear(function () {
         callback();
     })
+}
+
+/**
+ * 
+ * @param {Number} score a numeric score between -1 and 1
+ * @return percent, the score represented as a percentage between 0 and 100,
+ * i.e. -0.5 --> 25, 0 --> 50, -1 --> 0, 1 --> 100  
+ */
+function scoreToPercent(score) {
+    return Math.round(50 * (score + 1));
 }
