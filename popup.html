@@ -4,13 +4,64 @@
 <head>
   <meta charset="utf-8">
   <title>myBias Popup</title>
-
+  <link rel="stylesheet" href="popup.css">
 </head>
 
-<body>
-  <button id="clear">Clear Data</button>
-  <button id="print">Get Data Size</button>
-  <p>Data Size: </p><p id="data-length"></p>
+<body class="popup">
+  <div class="fonts">
+    <div class="row">
+      <h1>myBias</h1>
+    </div>
+    <div class="row">
+      <h2>This site’s AllSides bias rating: </h2>
+      <h2 id="siteBiasRating" class="l-margin"> Loading...</h2>
+    </div>
+    <div class="row">
+      <h3>Overall bias of the news you read: </h3>
+      <h3 id="readBiasRating" class="l-margin"> Loading... </h3>
+    </div>
+    <div class="row sliderBar">
+      <div class="sliderIndicator" id="sliderIndicatorRead"></div>
+    </div>
+    <div class="row">
+      <h3>Overall bias of news links you see: </h3>
+      <h3 id="feedBiasRating" class="l-margin"> Loading... </h3>
+    </div>
+    <div class="row sliderBar">
+      <div class="sliderIndicator" id="sliderIndicatorFeed"></div>
+    </div>
+    <div class="row">
+      <p class="big-p" id="biasDescriptor">
+        In aggrgate, you tend to read news articles from sources scored as {loading...} by AllSides.
+        In aggregate, the news story links you see online are from providers scored as {loading...} by AllSides.
+      </p>
+    </div>
+    <div class="row" id="hidden-row">
+      <p class="little-p">
+        This was determined by tracking the amount of time you spend on any site ranked by AllSides ( <a
+          href="https://www.allsides.com/media-bias/media-bias-ratings" target="_blank">see the list</a>), the
+        links to news sites ranked by AllSides that appeared on your browser, and those site’s corresponding bias
+        ratings: left, leans left, center, leans right, or right.
+
+        Privacy and transparency are important, so none of the data this extension collects ever leaves this device -
+        promise (it’s open source so you can <a href="https://github.com/allen-n/news-bias" target="_blank">check the
+          source code</a> ). <a href="https://www.allsides.com/media-bias/media-bias-rating-methods"
+          target="_blank">Click here to learn how AllSides does it’s
+          rankings</a>.</p>
+    </div>
+    <div class="row btn-row">
+      <a href="#" id="moreInfo" class="btn">How this works</a>
+      <a href="#" id="clear" class="btn">Clear Data</a>
+      <a href="#" id="print" class="btn">Get Data Size</a>
+    </div>
+    <div class="row">
+      <p>Data Size: </p>
+      <p id="data-length"></p>
+    </div>
+  </div>
+
+
+  <script src="scripts/jquery-3.5.1.min.js"></script>
   <script src="scripts/utils.js"></script>
   <script src="scripts/popup.js"></script>
 </body>

@@ -4,44 +4,6 @@ var gBiasRatings = {
   domains: null, // array of domains (keys of allData)
   set: null, // set of domains
 };
-// Flags: 
-// TODO: Deep URL crawl causes 10x performance hit, set true only on FB
-const gDeepURLs = false;
-const gDebug = true;
-// Enums:
-const gNoRating = "Not Rated";
-const gBiasEnum = { // Enum mapping bias rating strings to folder names
-  "Left": {
-    "str": "l",
-    "color": [24, 85, 249, 100],
-    "score": -1
-  },
-  "Lean Left": {
-    "str": "ll",
-    "color": [77, 76, 201, 100],
-    "score": -0.5
-  },
-  "Center": {
-    "str": "c",
-    "color": [130, 67, 152, 100],
-    "score": 0
-  },
-  "Lean Right": {
-    "str": "lr",
-    "color": [190, 56, 98, 100],
-    "score": 0.5
-  },
-  "Right": {
-    "str": "r",
-    "color": [252, 57, 57, 100],
-    "score": 1
-  },
-  "Not Rated": {
-    "str": "n",
-    "color": [116, 116, 116, 100],
-    "score": null
-  }
-};
 
 // Class Defs
 /**
@@ -118,6 +80,15 @@ class DataStore {
    */
   get(json, callback) {
     this._storageAPI.get(json, callback)
+  }
+
+  /**
+   * Wrapper for the chrome.storage.sync (or local) set api. 
+   * @param {JSON} json object to set in chrome storage, in the format {key: value}
+   * @param {Function} callback the callback function to be called after the desired object is loaded, i.e. callback(result_json)
+   */
+  set(json, callback) {
+    this._storageAPI.set(json, callback)
   }
 
   /**
@@ -264,6 +235,8 @@ class IconUpdater {
     chrome.browserAction.setBadgeBackgroundColor({
       color: this._biasEnum[siteBiasString].color
     });
+
+    ChromeStorage.set({ siteBiasString: siteBiasString }, null)
   }
 
   _printErrorCallback() {
@@ -307,7 +280,8 @@ class IconUpdater {
 // Class Inits:
 
 var Ratings = new BiasRatings('biasRatings.json', $);
-var ChromeStorage = new DataStore(Ratings, gBiasEnum, chrome.storage.sync);
+// storageAPI extern in utils.js to share with content scripts
+var ChromeStorage = new DataStore(Ratings, gBiasEnum, storageAPI);
 var IconManager = new IconUpdater(Ratings, ChromeStorage, gBiasEnum, gNoRating)
 
 /**

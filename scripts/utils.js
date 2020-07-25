@@ -1,5 +1,62 @@
 // Shared utility functions
 
+// For saving to local text file:
+// https://stackoverflow.com/questions/34156282/how-do-i-save-json-to-local-text-file
+
+// Shared Flags: 
+// TODO: Deep URL crawl causes 10x performance hit, set true only on FB
+const gDeepURLs = false;
+const gDebug = true;
+// Shared Enums:
+const gNoRating = "Not Rated";
+const gMixed = "Mixed";
+const storageAPI = chrome.storage.sync
+// Enum mapping bias rating strings to folder names
+//TODO: There is a 'mixed' category, counting it as 'center', handle later
+const gBiasEnum = {
+  "Left": {
+    "str": "l",
+    "color": [24, 85, 249, 100],
+    "score": -1,
+    "rgba": 'rgba(24, 85, 249, 1)'
+  },
+  "Lean Left": {
+    "str": "ll",
+    "color": [77, 76, 201, 100],
+    "score": -0.5,
+    "rgba": 'rgba(77, 76, 201, 1)'
+  },
+  "Center": {
+    "str": "c",
+    "color": [130, 67, 152, 100],
+    "score": 0,
+    "rgba": 'rgba(130, 67, 152, 1)'
+  },
+  "Mixed": {
+    "str": "c",
+    "color": [130, 67, 152, 100],
+    "score": 0,
+    "rgba": 'rgba(130, 67, 152, 1)'
+  },
+  "Lean Right": {
+    "str": "lr",
+    "color": [190, 56, 98, 100],
+    "score": 0.5,
+    "rgba": 'rgba(190, 56, 98, 1)'
+  },
+  "Right": {
+    "str": "r",
+    "color": [252, 57, 57, 100],
+    "score": 1,
+    "rgba": 'rgba(252, 57, 57, 1)'
+  },
+  "Not Rated": {
+    "str": "n",
+    "color": [116, 116, 116, 100],
+    "score": null,
+    "rgba": 'rgba(116, 116, 116, 1)'
+  }
+};
 
 /**
  * 
@@ -31,4 +88,14 @@ function clearStorage(callback) {
     chrome.storage.sync.clear(function () {
         callback();
     })
+}
+
+/**
+ * 
+ * @param {Number} score a numeric score between -1 and 1
+ * @return percent, the score represented as a percentage between 0 and 100,
+ * i.e. -0.5 --> 25, 0 --> 50, -1 --> 0, 1 --> 100  
+ */
+function scoreToPercent(score) {
+    return Math.round(50 * (score + 1));
 }
