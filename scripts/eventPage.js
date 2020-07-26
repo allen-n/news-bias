@@ -67,7 +67,7 @@ class DataStore {
    * The chrome storage API to be used for data storage. sync will sync across browsers but 
    * has a 100 kb limit, local is only on the local browser but has a 5 mb limit 
    */
-  constructor(Ratings, biasEnum, storageAPI = chrome.storage.sync) {
+  constructor(Ratings, biasEnum, storageAPI = gStorageAPI) {
     this._Ratings = Ratings;
     this._storageAPI = storageAPI
     this._biasEnum = biasEnum;
@@ -281,7 +281,7 @@ class IconUpdater {
 
 var Ratings = new BiasRatings('biasRatings.json', $);
 // storageAPI extern in utils.js to share with content scripts
-var ChromeStorage = new DataStore(Ratings, gBiasEnum, storageAPI);
+var ChromeStorage = new DataStore(Ratings, gBiasEnum, gStorageAPI);
 var IconManager = new IconUpdater(Ratings, ChromeStorage, gBiasEnum, gNoRating)
 
 /**

@@ -106,9 +106,9 @@ h3 {
     width: fit-content;
     background: rgba(134, 66, 149, 0.86);
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 15px;
-    padding: 10px;
+    padding: 9px;
     display: flex;
     cursor: pointer;
     color: #ffffff;
