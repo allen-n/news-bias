@@ -5,7 +5,7 @@ function extractUrls(domNodes = document.body) {
     var allUrls = []
     var googUrls = []
     if (!domNodes) return;
-    
+
     try {
         allUrls = domNodes.querySelectorAll('a[href^=http]') // Most websites
         googUrls = domNodes.querySelectorAll('a[href^="./articles"]') // On news.google.com    
@@ -50,24 +50,34 @@ extractUrls()
 
 // Fires constantly:
 MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+var mutationCache = new Set() // Cache to prevent the same mutation from being read twice
 
 var observer = new MutationObserver(function (mutations, observer) {
     // fired when a mutation occurs
-    // console.log(mutations, observer);
     for (let mutation of mutations) {
-        for (let node of mutation.addedNodes) {
-            extractUrls(node)
+        if (!mutationCache.has(mutation)) {
+            mutationCache.add(mutation);
+            for (let node of mutation.addedNodes) {
+                extractUrls(node)
+            }
         }
     }
-    // 
-    // ...
+
 });
 
-// define what element should be observed by the observer
-// and what types of mutations trigger the callback
-observer.observe(document.body, {
-    subtree: true,
-    attributes: true,
-    childList: true
-    //...
-});
+gStorageAPI.get({
+    followDeepLinks: false
+}, function (items) {
+    if (items.followDeepLinks) {
+        // define what element should be observed by the observer
+        // and what types of mutations trigger the callback
+        observer.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            childList: true
+
+        });
+    }
+})
+
+

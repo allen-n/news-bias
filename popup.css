@@ -17,6 +17,7 @@
     --leans-right-color: #BE3862;
     --right-color: #FC3939;
     --none-color: #747474;
+    --tx-dist: 50%;
 }
 
 body {
@@ -24,6 +25,10 @@ body {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-around;
+}
+
+.options {
+    display: block;
 }
 
 .fonts {
@@ -74,6 +79,14 @@ h3 {
 
 .btn-row {
     justify-content: space-evenly;
+}
+
+.btn-row-left {
+    justify-content: none;
+}
+
+.btn-left {
+    margin-right: 10px;
 }
 
 .sliderBar {
@@ -142,4 +155,46 @@ h3 {
 
 #hidden-row {
     display: none;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+}
+
+.slide-in {
+    animation: slide-in 0.5s forwards;
+    -webkit-animation: slide-in 0.5s forwards;
+}
+
+.slide-out {
+    animation: slide-out 0.5s forwards;
+    -webkit-animation: slide-out 0.5s forwards;
+}
+
+@keyframes slide-in {
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+@-webkit-keyframes slide-in {
+    100% {
+        -webkit-transform: translateX(0%);
+    }
+}
+
+@keyframes slide-out {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@-webkit-keyframes slide-out {
+    0% {
+        -webkit-transform: translateX(0%);
+    }
+    100% {
+        -webkit-transform: translateX(-50%);
+    }
 }

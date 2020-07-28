@@ -3,24 +3,31 @@
 
 <head>
     <title>myBias Options</title>
+    <link rel="stylesheet" href="popup.css">
 </head>
 
-<body style="font-size: medium">
-    <h3>Options:</h3>
-    <table>
-        <tr>
-            <td>Check links* on <a href="https://www.facebook.com/">facebook.com</a></td>
-            <td><input type="checkbox" name="" id="deep-links"></td>
-        </tr>
-        <tr>
-            <td>
-                <button id="save">Save</button>
-                <button id="close">Close</button>
-            </td>
-        </tr>
-    </table>
-    <p>*Note: This will slightly decrease performance of the extension, but it's so small you likely won't notice it!</p>
-    <div id="status"></div>
+<body class="popup options">
+    <div class="fonts">
+        <div class="row">
+            <h1>myBias Options</h1>
+        </div>
+        <div class="row">
+            <h3>Check links* on <a href="https://www.facebook.com/">facebook.com</a></h3>
+            <input type="checkbox" name="" id="deep-links">
+        </div>
+        <div class="row">
+            <p class="big-p">
+                *Note: This will slightly decrease performance of the extension, but it's so small you likely won't
+                notice it!
+            </p>
+        </div>
+        <div class="row btn-row-left">
+            <a href="#" id="save" class="btn btn-left">Save</a>
+            <a href="#" id="close" class="btn btn-left">Close</a>
+        </div>
+        <div id="status" class="row"></div>
+    </div>
+
 
 
     <script src="scripts/utils.js"></script>

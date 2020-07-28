@@ -18,12 +18,23 @@ document.getElementById('print').addEventListener('click', function (e) {
     gStorageAPI.get(null, (data) => {
         // let json = JSON.parse(data)
         // TODO: Format data in more useful way, maybe a csv?
-        downloadObjectAsJson(data, 'myBias_Data')
+        var output = { browsingData: {}, siteData: {} }
+        for (let key in data) {
+            if (key.match(/\./)) {
+                output.siteData[key] = JSON.parse(data[key])
+            } else {
+                output.browsingData[key] = data[key]
+            }
+        }
+        downloadObjectAsJson(output, 'myBias_Data')
     })
 })
 
 document.getElementById('moreInfo').addEventListener('click', function (e) {
-    document.getElementById('hidden-row').style.display = 'flex';
+    var isVisible = document.getElementById('hidden-row').classList.contains('slide-in')
+    document.getElementById('hidden-row').style.display = isVisible ? 'none' : 'flex';
+    document.getElementById('hidden-row').setAttribute('class', isVisible ? 'slide-out' : 'slide-in')
+
 })
 
 document.getElementById('options').addEventListener('click', function (e) {

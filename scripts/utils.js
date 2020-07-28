@@ -10,6 +10,7 @@ const gDebug = true;
 // Shared Enums:
 const gNoRating = "Not Rated";
 const gMixed = "Mixed";
+const gDeepCrawlDomains = new Set(["facebook.com"]) // domains that deep crawling is done on
 const gStorageAPI = chrome.storage.local
 // Enum mapping bias rating strings to folder names
 //TODO: There is a 'mixed' category, counting it as 'center', handle later
