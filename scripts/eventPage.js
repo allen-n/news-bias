@@ -67,7 +67,7 @@ class DataStore {
    * The chrome storage API to be used for data storage. sync will sync across browsers but 
    * has a 100 kb limit, local is only on the local browser but has a 5 mb limit 
    */
-  constructor(Ratings, biasEnum, storageAPI = chrome.storage.sync) {
+  constructor(Ratings, biasEnum, storageAPI = gStorageAPI) {
     this._Ratings = Ratings;
     this._storageAPI = storageAPI
     this._biasEnum = biasEnum;
@@ -149,7 +149,8 @@ class DataStore {
     var self = this;
     self._storageAPI.get({
       averageLinkScore: 0, // average bias score for links shown to client, between -1 and 1
-      totalLinksSeen: 0 // total number of links seen be the client
+      totalLinksSeen: 0, // total number of links seen be the client
+      followDeepLinks: false
     }, function (items) {
       Ratings.getRatings(function (ratings) {
         domains.forEach(function (num, domain) {
@@ -281,7 +282,7 @@ class IconUpdater {
 
 var Ratings = new BiasRatings('biasRatings.json', $);
 // storageAPI extern in utils.js to share with content scripts
-var ChromeStorage = new DataStore(Ratings, gBiasEnum, storageAPI);
+var ChromeStorage = new DataStore(Ratings, gBiasEnum, gStorageAPI);
 var IconManager = new IconUpdater(Ratings, ChromeStorage, gBiasEnum, gNoRating)
 
 /**
@@ -334,41 +335,62 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   }
 })
 
+/**
+ * Finds the intersection of the domains in the domain list with the domains 
+ * in the bias ratings list, ignoring links from the current domain
+ * 
+ * @param {Array<String>} domainList a list of domain strings to be checked against
+ * domains with bias ratings from biasRatings.json. The appearence of these domain
+ * links is then logged using the DataStore wrapper
+ * @param {string} currentDomain the current domain being accessed, i.e. xyz.com
+ */
+function getUrlIntersection(domainList, currentDomain) {
+  // Fetch the list of all news site ratings
+  Ratings.getRatings(function (ratings) {
+    let domainMap = new Map()
+    domainList.forEach(function (domain) {
+      if (domainMap.has(domain)) {
+        domainMap.set(domain, domainMap.get(domain) + 1)
+      } else {
+        domainMap.set(domain, 1)
+      }
+    })
+    let intersection = new Map()
+    ratings.set.forEach(function (domain) {
+      if (domainMap.has(domain)) {
+        intersection.set(domain, domainMap.get(domain))
+      }
+    })
+    if (gDebug) console.log(intersection)
+    ChromeStorage.storeLinkVisit(intersection, currentDomain)
+  });
+}
+
+// TODO: make sure this function behaves correctly on facebook
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     const urlList = request.content
     const currentDomain = request.currentDomain
     var domainList = []
-    if (gDeepURLs) {
-      urlList.forEach(function (url) {
-        getRedirectUrl(url, function (allURLs) {
-          for (deepURL in allURLs) {
-            domainList.push(url2Domain(deepURL));
-          }
+    gStorageAPI.get({
+      followDeepLinks: false
+    }, function (items) {
+      if (items.followDeepLinks && gDeepCrawlDomains.has(currentDomain)) {
+        urlList.forEach(function (url) {
+          getRedirectUrl(url, function (allURLs) {
+            for (const [_, deepURL] of allURLs.entries()) {
+              domainList.push(url2Domain(deepURL));
+            }
+            console.log(`dURLs: ${domainList}`)
+            getUrlIntersection(domainList, currentDomain);
+          })
         })
-      })
-    } else {
-      urlList.forEach(function (url) {
-        domainList.push(url2Domain(url))
-      });
-    }
-    // Fetch the list of all news site ratings
-    Ratings.getRatings(function (ratings) {
-      let domainMap = new Map()
-      domainList.forEach(function (domain) {
-        if (domainMap.has(domain)) {
-          domainMap.set(domain, domainMap.get(domain) + 1)
-        } else {
-          domainMap.set(domain, 1)
-        }
-      })
-      let intersection = new Map()
-      ratings.set.forEach(function (domain) {
-        if (domainMap.has(domain)) {
-          intersection.set(domain, domainMap.get(domain))
-        }
-      })
-      if (gDebug) console.log(intersection)
-      ChromeStorage.storeLinkVisit(intersection, currentDomain)
-    });
+      } else {
+        urlList.forEach(function (url) {
+          domainList.push(url2Domain(url))
+        });
+        getUrlIntersection(domainList, currentDomain);
+      }
+    })
+
   });

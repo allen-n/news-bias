@@ -2,62 +2,35 @@
 <html>
 
 <head>
-    <title>Charge Control Options</title>
+    <title>myBias Options</title>
+    <link rel="stylesheet" href="popup.css">
 </head>
 
-<body style="font-size: medium">
-    <h3>Options:</h3>
-    <!-- <table>
-        <tr>
-            <td> Max Charge %</td>
-            <td>
-                <input type="number" name="" id="max-charge-percent">
-            </td>
-        </tr>
-        <tr>
-            <td> Minimum Charge %</td>
-            <td>
-                <input type="number" name="" id="min-charge-percent">
-            </td>
-        </tr>
-        <tr>
-            <td> <a href="https://ifttt.com/maker_webhooks/settings" target="_blank">Webhook API Key</a> </td>
-            <td>
-                <input type="password" name="" id="api-key" placeholder="key...">
-
-            </td>
-        </tr>
-        <tr>
-            <td>Show API Key</td>
-            <td><input type="checkbox" name="" id="show-api-key"></td>
-        </tr>
-        <tr>
-            <td> "Turn On" Event Name</a> </td>
-            <td>
-                <input type="text" name="" id="on-event-name" placeholder="event_name...">
-            </td>
-        </tr>
-        <tr>
-            <td> "Turn Off" Event Name</a> </td>
-            <td>
-                <input type="text" name="" id="off-event-name" placeholder="event_name...">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button id="save">Save</button>
-                <button id="close">Close</button>
-            </td>
-            <td>
-                <button id="test-on">Test "Turn On"</button>
-                <button id="test-off">Test "Turn Off"</button>
-            </td>
-        </tr>
-    </table>
-    <div id="status"></div> -->
+<body class="popup options">
+    <div class="fonts">
+        <div class="row">
+            <h1>myBias Options</h1>
+        </div>
+        <div class="row">
+            <h3>Check links* on <a href="https://www.facebook.com/">facebook.com</a></h3>
+            <input type="checkbox" name="" id="deep-links">
+        </div>
+        <div class="row">
+            <p class="big-p">
+                *Note: This will slightly decrease performance of the extension, but it's so small you likely won't
+                notice it!
+            </p>
+        </div>
+        <div class="row btn-row-left">
+            <a href="#" id="save" class="btn btn-left">Save</a>
+            <a href="#" id="close" class="btn btn-left">Close</a>
+        </div>
+        <div id="status" class="row"></div>
+    </div>
 
 
 
+    <script src="scripts/utils.js"></script>
     <script src="scripts/options.js"></script>
 </body>
 

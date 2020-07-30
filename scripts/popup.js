@@ -3,11 +3,10 @@
 
 document.getElementById('clear').addEventListener('click', function (e) {
     // An alternative modal using jQuery: https://jqueryui.com/dialog/#modal-confirmation
-    const confirmString = `Are you sure you want to delete all data? \n(This isn't reversable, so you may want to download it first!)`
+    const confirmString = `Are you sure you want to delete all data? \n(This isn't reversible, so you may want to download it first!)`
     if (confirm(confirmString)) {
         clearStorage(function () {
-            console.log("All data deleted")
-            document.getElementById('data-length').innerHTML = "All data deleted."
+            console.log("myBias Data Deleted")
         })
     } else {
         // Do nothing
@@ -16,17 +15,35 @@ document.getElementById('clear').addEventListener('click', function (e) {
 })
 
 document.getElementById('print').addEventListener('click', function (e) {
-    storageAPI.get(null, (data) => {
-        // let length = JSON.stringify(data).length
-        let length = jsonLength(data)
-        document.getElementById('data-length').innerHTML = length + " b"
+    gStorageAPI.get(null, (data) => {
+        // let json = JSON.parse(data)
+        // TODO: Format data in more useful way, maybe a csv?
+        var output = { browsingData: {}, siteData: {} }
+        for (let key in data) {
+            if (key.match(/\./)) {
+                output.siteData[key] = JSON.parse(data[key])
+            } else {
+                output.browsingData[key] = data[key]
+            }
+        }
+        downloadObjectAsJson(output, 'myBias_Data')
     })
 })
 
 document.getElementById('moreInfo').addEventListener('click', function (e) {
-    document.getElementById('hidden-row').style.display = 'flex';
+    var isVisible = document.getElementById('hidden-row').classList.contains('slide-in')
+    document.getElementById('hidden-row').style.display = isVisible ? 'none' : 'flex';
+    document.getElementById('hidden-row').setAttribute('class', isVisible ? 'slide-out' : 'slide-in')
+
 })
 
+document.getElementById('options').addEventListener('click', function (e) {
+    if (chrome.runtime.openOptionsPage) {
+        chrome.runtime.openOptionsPage();
+    } else {
+        window.open(chrome.runtime.getURL('options.html'));
+    }
+})
 
 /**
  * convert a bias rating to it's corresponding RGB color
@@ -84,17 +101,21 @@ function ratingToString(rating, biasEnum = gBiasEnum) {
     return str
 }
 
-window.onload = function () {
-    // storageAPI.get(null, function (data) { console.log(data) })
-    storageAPI.get({
+function updatePopup() {
+    const loading = "Loading..."
+    gStorageAPI.get({
         totalVisitNumber: 0, // total number times a news site was visited
         averageVisitScore: 0, // average bias score for site visits, between -1 and 1,
         averageLinkScore: 0, // average bias score for links shown to client, between -1 and 1
         totalLinksSeen: 0, // total number of links seen be the client
-        siteBiasString: "Loading..."
+        siteBiasString: loading
     }, function (items) {
         document.getElementById('siteBiasRating').innerHTML = items.siteBiasString;
-        document.getElementById('siteBiasRating').style.color = gBiasEnum[items.siteBiasString].rgba
+        let siteRatingColor = gBiasEnum[gNoRating].rgba
+        if (items.siteBiasString != loading) {
+            siteRatingColor = gBiasEnum[items.siteBiasString].rgba
+        }
+        document.getElementById('siteBiasRating').style.color = siteRatingColor
         document.getElementById('readBiasRating').innerHTML = items.averageVisitScore;
         document.getElementById('feedBiasRating').innerHTML = items.averageLinkScore;
 
@@ -113,7 +134,12 @@ window.onload = function () {
         littlePString += ` In aggregate, the news story links you see online are from providers scored as ${fBr} by AllSides.`
         document.getElementById('biasDescriptor').innerHTML = littlePString;
 
-        document.getElementById('sliderIndicatorRead').style.marginLeft = '' + scoreToPercent(items.averageVisitScore) + '%';
-        document.getElementById('sliderIndicatorFeed').style.marginLeft = '' + scoreToPercent(items.averageLinkScore) + '%';
+        document.getElementById('sliderIndicatorRead').style.marginLeft = '' + scoreToPercent(items.averageVisitScore, 98) + '%';
+        document.getElementById('sliderIndicatorFeed').style.marginLeft = '' + scoreToPercent(items.averageLinkScore, 98) + '%';
     })
 }
+
+// Listeners 
+chrome.storage.onChanged.addListener(updatePopup)
+window.onload = updatePopup
+

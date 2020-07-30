@@ -10,7 +10,8 @@ const gDebug = true;
 // Shared Enums:
 const gNoRating = "Not Rated";
 const gMixed = "Mixed";
-const storageAPI = chrome.storage.sync
+const gDeepCrawlDomains = new Set(["facebook.com"]) // domains that deep crawling is done on
+const gStorageAPI = chrome.storage.local
 // Enum mapping bias rating strings to folder names
 //TODO: There is a 'mixed' category, counting it as 'center', handle later
 const gBiasEnum = {
@@ -64,10 +65,10 @@ const gBiasEnum = {
  * @return {string} the domain of the passed url, i.e. domain.com 
  */
 function url2Domain(url) {
-    var domain = url.replace(/^https?:\/\//, ''); // Strip off https:// and/or http://
-    domain = domain.replace(/^[a-zA-Z]*\./, ''); // Strip off anything before the first .
-    domain = domain.split('/')[0]; // Get the domain and just the domain (not the path)
-    return domain
+  var domain = url.replace(/^https?:\/\//, ''); // Strip off https:// and/or http://
+  domain = domain.replace(/^[a-zA-Z]*\./, ''); // Strip off anything before the first .
+  domain = domain.split('/')[0]; // Get the domain and just the domain (not the path)
+  return domain
 }
 
 /**
@@ -75,7 +76,7 @@ function url2Domain(url) {
  * @return {Number} the size of the stringified json 
  */
 function jsonLength(json) {
-    return JSON.stringify(json).length
+  return JSON.stringify(json).length
 }
 
 /**
@@ -84,18 +85,29 @@ function jsonLength(json) {
  * chrome storage data is deleted
  */
 function clearStorage(callback) {
-    // TODO: refactor to use DataStore abstraction instead of chrome.storage.sync
-    chrome.storage.sync.clear(function () {
-        callback();
-    })
+  gStorageAPI.clear(function () {
+    callback();
+  })
 }
 
 /**
  * 
  * @param {Number} score a numeric score between -1 and 1
+ * @param {number} max a value to clamp the max to if less than 100 
  * @return percent, the score represented as a percentage between 0 and 100,
  * i.e. -0.5 --> 25, 0 --> 50, -1 --> 0, 1 --> 100  
  */
-function scoreToPercent(score) {
-    return Math.round(50 * (score + 1));
+function scoreToPercent(score, max = 100) {
+  let percent = Math.round(50 * (score + 1))
+  return percent < max ? percent : max;
+}
+
+function downloadObjectAsJson(exportObj, exportName) {
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 }

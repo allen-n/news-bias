@@ -1,56 +1,83 @@
 
-var allUrls = document.body.querySelectorAll('a[href^=http]') // Most websites
-var googUrls = document.body.querySelectorAll('a[href^="./articles"]') // On news.google.com
-var domain = window.location.href;
-domain = url2Domain(domain)
 
-var urlList = [];
-for (i = 0; i < allUrls.length; i++) {
-    var url = allUrls[i].href
-    urlList.push(url);
-}
 
-for (i = 0; i < googUrls.length; i++) {
-    var url = googUrls[i].href
-    urlList.push(url);
-}
+function extractUrls(domNodes = document.body) {
+    var allUrls = []
+    var googUrls = []
+    if (!domNodes) return;
 
-chrome.runtime.sendMessage({
-    content: urlList,
-    currentDomain: domain
-}, function (response) {
-    const lastErr = chrome.runtime.lastError;
-    if (lastErr) {
-        console.log(`Couldn\'t send message. 
-Likely because the background script isn\'t running yet (hang tight!). 
-Error message: ` + JSON.stringify(lastErr));
+    try {
+        allUrls = domNodes.querySelectorAll('a[href^=http]') // Most websites
+        googUrls = domNodes.querySelectorAll('a[href^="./articles"]') // On news.google.com    
+    } catch (error) {
+        // TODO: remove this logging, occurs when the domNodes object isn't valid
+        console.log(`myBias error parsing urls: ${error}`)
     }
-    console.log("myBias URLs logged")
+
+
+    var domain = window.location.href;
+    domain = url2Domain(domain)
+
+    var urlList = [];
+    for (i = 0; i < allUrls.length; i++) {
+        var url = allUrls[i].href
+        urlList.push(url);
+    }
+
+    for (i = 0; i < googUrls.length; i++) {
+        var url = googUrls[i].href
+        urlList.push(url);
+    }
+
+    if (allUrls.length == 0) {
+        return
+    }
+
+    chrome.runtime.sendMessage({
+        content: urlList,
+        currentDomain: domain
+    }, function (response) {
+        const lastErr = chrome.runtime.lastError;
+        if (lastErr) {
+            console.log(`myBias Logging Error: ` + JSON.stringify(lastErr));
+        } else {
+            console.log("myBias URLs logged")
+        }
+    });
+}
+
+extractUrls()
+
+// Fires constantly:
+MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+var mutationCache = new Set() // Cache to prevent the same mutation from being read twice
+
+var observer = new MutationObserver(function (mutations, observer) {
+    // fired when a mutation occurs
+    for (let mutation of mutations) {
+        if (!mutationCache.has(mutation)) {
+            mutationCache.add(mutation);
+            for (let node of mutation.addedNodes) {
+                extractUrls(node)
+            }
+        }
+    }
+
 });
 
-// TODO: Implement Mutation observer to hadle scrolling dynamic pages
+gStorageAPI.get({
+    followDeepLinks: false
+}, function (items) {
+    if (items.followDeepLinks) {
+        // define what element should be observed by the observer
+        // and what types of mutations trigger the callback
+        observer.observe(document.body, {
+            subtree: true,
+            attributes: true,
+            childList: true
 
-// // Select the node that will be observed for mutations
-// var targetNode = document.body;
+        });
+    }
+})
 
-// // Options for the observer (which mutations to observe)
-// var config = { attributes: true, childList: true, subtree: true };
 
-// // Callback function to execute when mutations are observed
-// var callback = function (mutationsList, observer) {
-//     targetNode = document.body.querySelector("object");
-//     for (var mutation of mutationsList) {
-//         if (mutation.type == 'childList') {
-//             console.log('A child node has been added or removed.');
-//         }
-//         else if (mutation.type == 'attributes') {
-//             console.log('The ' + mutation.attributeName + ' attribute was modified.');
-//         }
-//     }
-// };
-
-// // Create an observer instance linked to the callback function
-// var observer = new MutationObserver(callback);
-
-// // Start observing the target node for configured mutations
-// observer.observe(targetNode, config);
