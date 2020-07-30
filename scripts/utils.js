@@ -34,9 +34,9 @@ const gBiasEnum = {
     "rgba": 'rgba(130, 67, 152, 1)'
   },
   "Mixed": {
-    "str": "c",
+    "str": "n",
     "color": [130, 67, 152, 100],
-    "score": 0,
+    "score": null,
     "rgba": 'rgba(130, 67, 152, 1)'
   },
   "Lean Right": {
@@ -110,4 +110,25 @@ function downloadObjectAsJson(exportObj, exportName) {
   document.body.appendChild(downloadAnchorNode); // required for firefox
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
+}
+
+/**
+ * Return all the chrome storage data as a single json object
+ * 
+ * @param {function} callback a callback function to be called, the first argument
+ * is the JSON version of gStorageAPI's get() function
+ */
+function allDataToJson(callback) {
+  gStorageAPI.get(null, (data) => {
+    // TODO: Format data in more useful way, maybe a csv?
+    var output = { browsingData: {}, siteData: {} }
+    for (let key in data) {
+      if (key.match(/\./)) {
+        output.siteData[key] = JSON.parse(data[key])
+      } else {
+        output.browsingData[key] = data[key]
+      }
+    }
+    callback(output)
+  })
 }

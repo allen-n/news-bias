@@ -46,7 +46,21 @@ function extractUrls(domNodes = document.body) {
     });
 }
 
-extractUrls()
+extractUrls();
+
+function destructor() {
+    // Destruction is needed only once
+    document.removeEventListener(destructionEvent, destructor);
+    observer.disconnect();
+    delete observer;
+    // Persist mutation cache, this is the same page
+    // Tear down content script: Unbind events, clear timers, restore DOM, etc.
+}
+
+var destructionEvent = 'destructMyBias' + chrome.runtime.id;
+// Unload previous content script if needed
+document.dispatchEvent(new CustomEvent(destructionEvent));
+document.addEventListener(destructionEvent, destructor);
 
 // Fires constantly:
 MutationObserver = window.MutationObserver || window.WebKitMutationObserver;

@@ -24,6 +24,12 @@ function loadOptions() {
     })
 }
 
+function loadVisitTable() {
+    gStorageAPI.get(null, function(data){
+        
+    });
+}
+
 document.getElementById('save').addEventListener('click', saveOptions);
 document.getElementById('close').addEventListener('click', function (e) {
     window.close()

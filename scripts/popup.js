@@ -15,17 +15,7 @@ document.getElementById('clear').addEventListener('click', function (e) {
 })
 
 document.getElementById('print').addEventListener('click', function (e) {
-    gStorageAPI.get(null, (data) => {
-        // let json = JSON.parse(data)
-        // TODO: Format data in more useful way, maybe a csv?
-        var output = { browsingData: {}, siteData: {} }
-        for (let key in data) {
-            if (key.match(/\./)) {
-                output.siteData[key] = JSON.parse(data[key])
-            } else {
-                output.browsingData[key] = data[key]
-            }
-        }
+    allDataToJson(function (output) {
         downloadObjectAsJson(output, 'myBias_Data')
     })
 })
