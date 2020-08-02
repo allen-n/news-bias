@@ -15,21 +15,38 @@
             <h3>Check links* on <a href="https://www.facebook.com/">facebook.com</a></h3>
             <input type="checkbox" name="" id="deep-links">
         </div>
-        <div class="row">
-            <p class="big-p">
-                *Note: This will slightly decrease performance of the extension, but it's so small you likely won't
-                notice it!
-            </p>
-        </div>
+
         <div class="row btn-row-left">
             <a href="#" id="save" class="btn btn-left">Save</a>
             <a href="#" id="close" class="btn btn-left">Close</a>
         </div>
         <div id="status" class="row"></div>
+        <div class="row">
+            <table style="width:100%; text-align:center" id="ratings-table">
+                <tr>
+                    <th>Website Name</th>
+                    <th>Number of times visited</th>
+                    <th>Number of times link seen</th>
+                    <th>AllSides Bias Rating**</th>
+                </tr>
+            </table>
+        </div>
+        <div class="row">
+            <p class="little-p">
+                *Note: Facebook does this pesky thing where the links you see get routed through an
+                additional page or two before hitting the final destination you see when you click them.
+                To deal with that we have to do a little extra computing, which will slightly decrease
+                performance of the extension, but it's so small you likely won't notice it! (If you do,
+                please let the developer know and turn this feature off - thanks!)
+            </p>
+        </div>
+        <div class="row">
+            <p class="little-p">
+                **Ratings last updated July 2020
+            </p>
+        </div>
     </div>
-
-
-
+    <script src="scripts/jquery-3.5.1.min.js"></script>
     <script src="scripts/utils.js"></script>
     <script src="scripts/options.js"></script>
 </body>

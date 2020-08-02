@@ -9,51 +9,6 @@ var gBiasRatings = {
 /**
  * Manages the bias ratings json and async loads it as necessary
  */
-class BiasRatings {
-  /**
-   * @param {string} jsonName, the name of the bias ratings JSON object (located in ./, else include path)
-   * @param {*} $, a reference to the jquery library 
-   */
-  constructor(jsonName, $) {
-    this._biasRatingsObj = {
-      allData: null,
-      domains: null,
-      set: null,
-    };
-    this._$ = $
-    this._jsonName = jsonName
-  }
-
-  /**
-   * 
-   * @param {function} callback callback function to be called after data is loaded
-   * as callback(data)
-   */
-  _loadData(callback = null) {
-    var obj = this // this is no longer accessible in closure capture scope, this refers to closure function object
-    this._$.getJSON(chrome.extension.getURL(this._jsonName), function (biasRatings) {
-      obj._biasRatingsObj.allData = biasRatings;
-      obj._biasRatingsObj.domains = Object.keys(biasRatings)
-      obj._biasRatingsObj.set = new Set(obj._biasRatingsObj.domains);
-      if (callback != null) callback(obj._biasRatingsObj);
-    })
-  }
-  /**
-   * Initializes the following global variables:
-   * * this.allData: full rating json object
-   * * this.domains: array of domains (keys of allData)
-   * * this.set: set of domains
-   * @param {function} callback, a callback function to be called with the bias 
-   * ratings json object as the argument, i.e. callback(gBiasRatings.allData)
-   */
-  getRatings(callback) {
-    if (this._biasRatingsObj.allData == null) {
-      this._loadData(callback)
-    } else {
-      callback(this._biasRatingsObj);
-    }
-  }
-}
 
 /**
  * Manages saving data to chrome.storage
@@ -112,21 +67,27 @@ class DataStore {
             }
             const visits = items.totalVisitNumber
             const siteBiasString = ratings.allData[domain].rating
+            const biasScore = self._biasEnum[siteBiasString].score
             let score = visits * items.averageVisitScore
-            score += self._biasEnum[siteBiasString].score
-
+            // don't update if the score for this site is null
+            var newScore = items.averageVisitScore;
+            var newVisits = visits;
+            if (biasScore != null) {
+              score += biasScore
+              newVisits = visits + 1;// one more visit
+              newScore = score / newVisits
+            }
+            self._storageAPI.set({
+              totalVisitNumber: newVisits,
+              averageVisitScore: newScore // updated score
+            })
 
             var storageObj = {}
             const domainVisits = fetchedDomain.visits + 1
             const domainLinks = fetchedDomain.linked
             const json = JSON.stringify({ 'visits': domainVisits, 'linked': domainLinks })
-            const newScore = score / (visits + 1);
             storageObj[domain] = json
             self._storageAPI.set(storageObj)
-            self._storageAPI.set({
-              totalVisitNumber: visits + 1, // one more visit
-              averageVisitScore: newScore // updated score
-            })
             if (gDebug) console.log("Average Read article score: ", newScore)
           })
         })

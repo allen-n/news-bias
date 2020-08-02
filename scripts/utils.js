@@ -34,7 +34,7 @@ const gBiasEnum = {
     "rgba": 'rgba(130, 67, 152, 1)'
   },
   "Mixed": {
-    "str": "n",
+    "str": "m",
     "color": [130, 67, 152, 100],
     "score": null,
     "rgba": 'rgba(130, 67, 152, 1)'
@@ -58,6 +58,54 @@ const gBiasEnum = {
     "rgba": 'rgba(116, 116, 116, 1)'
   }
 };
+
+// Util Class Definitions
+class BiasRatings {
+  /**
+   * @param {string} jsonName, the name of the bias ratings JSON object (located in ./, else include path)
+   * @param {*} $, a reference to the jquery library 
+   */
+  constructor(jsonName, $) {
+    this._biasRatingsObj = {
+      allData: null,
+      domains: null,
+      set: null,
+    };
+    this._$ = $
+    this._jsonName = jsonName
+  }
+
+  /**
+   * 
+   * @param {function} callback callback function to be called after data is loaded
+   * as callback(data)
+   */
+  _loadData(callback = null) {
+    var obj = this // this is no longer accessible in closure capture scope, this refers to closure function object
+    this._$.getJSON(chrome.extension.getURL(this._jsonName), function (biasRatings) {
+      obj._biasRatingsObj.allData = biasRatings;
+      obj._biasRatingsObj.domains = Object.keys(biasRatings)
+      obj._biasRatingsObj.set = new Set(obj._biasRatingsObj.domains);
+      if (callback != null) callback(obj._biasRatingsObj);
+    })
+  }
+  /**
+   * Initializes the following global variables:
+   * * this.allData: full rating json object
+   * * this.domains: array of domains (keys of allData)
+   * * this.set: set of domains
+   * @param {function} callback, a callback function to be called with the bias 
+   * ratings json object as the argument, i.e. callback(gBiasRatings.allData)
+   */
+  getRatings(callback) {
+    if (this._biasRatingsObj.allData == null) {
+      this._loadData(callback)
+    } else {
+      callback(this._biasRatingsObj);
+    }
+  }
+}
+
 
 /**
  * 
