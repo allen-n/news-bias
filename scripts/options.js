@@ -17,7 +17,7 @@ function saveOptions() {
 
 function loadOptions() {
     gStorageAPI.get({
-        followDeepLinks: false
+        followDeepLinks: true // default to following facebook links
     }, function (items) {
         console.log(items)
         document.getElementById('deep-links').checked = items.followDeepLinks
@@ -44,7 +44,14 @@ function loadVisitTable() {
     })
 }
 
+function downloadRatings() {
+    Ratings.getRatings(function (ratings) {
+        downloadObjectAsJson(ratings.allData, 'AllSides_Ratings');
+    })
+}
+
 document.getElementById('save').addEventListener('click', saveOptions);
+document.getElementById('ratings').addEventListener('click', downloadRatings);
 document.getElementById('close').addEventListener('click', function (e) {
     window.close()
 });

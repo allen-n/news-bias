@@ -4,16 +4,13 @@
 // https://stackoverflow.com/questions/34156282/how-do-i-save-json-to-local-text-file
 
 // Shared Flags: 
-// TODO: Deep URL crawl causes 10x performance hit, set true only on FB
-const gDeepURLs = false;
-const gDebug = true;
+const gDebug = false;
 // Shared Enums:
 const gNoRating = "Not Rated";
 const gMixed = "Mixed";
 const gDeepCrawlDomains = new Set(["facebook.com"]) // domains that deep crawling is done on
 const gStorageAPI = chrome.storage.local
 // Enum mapping bias rating strings to folder names
-//TODO: There is a 'mixed' category, counting it as 'center', handle later
 const gBiasEnum = {
   "Left": {
     "str": "l",
@@ -133,9 +130,7 @@ function jsonLength(json) {
  * chrome storage data is deleted
  */
 function clearStorage(callback) {
-  gStorageAPI.clear(function () {
-    callback();
-  })
+  gStorageAPI.clear(callback)
 }
 
 /**

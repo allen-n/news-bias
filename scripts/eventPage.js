@@ -342,7 +342,6 @@ chrome.runtime.onMessage.addListener(
             for (const [_, deepURL] of allURLs.entries()) {
               domainList.push(url2Domain(deepURL));
             }
-            console.log(`dURLs: ${domainList}`)
             getUrlIntersection(domainList, currentDomain);
           })
         })
